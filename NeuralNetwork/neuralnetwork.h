@@ -13,12 +13,13 @@
 char path_hidden_layer[] = "Layers/hidden_layer.dat";
 char path_output_layer[] = "Layers/output_layer.dat";
 
+
+
 typedef struct
 {
     double value;
     double output_weights[num_hidden_nodes];
     double bias;
-    
 } Output_Neuron;
 
 
@@ -29,7 +30,6 @@ typedef struct
     double bias;
 } Neuron;
 
-
 typedef struct {
     double value;
 } Input_Neuron;
@@ -38,13 +38,14 @@ typedef struct {
     Input_Neuron* input_layer;
     Neuron* hidden_layer;
     Output_Neuron* output_layer;
+
 } Network;
 
 
 typedef struct Image{
-    double input[num_input_nodes];
+    double pixels[num_input_nodes];
+    char letter;
     double expected_output[num_output_nodes];
-    char type;
     struct Image * next; 
 } Image;
 
@@ -53,4 +54,3 @@ typedef struct Images_Array{
 } Images_Array;
 
 void add_to_imgs_array(Images_Array * array, Image * img) {}
-int array_size(Image * img, int num) {}

@@ -12,78 +12,8 @@ Structures based from:
 #include <string.h>
 #include <time.h>
 #include <math.h>
+#include "neuralnetwork.h"
 
-
-#define FILAS 28
-#define COLUMNAS  28
-#define num_input_nodes (FILAS * COLUMNAS)
-#define num_output_nodes 7
-#define num_hidden_nodes 32
-#define learning_rate 0.65
-#define EPOCHS 10000
-
-char path_hidden_layer[] = "Layers/hidden_layer.dat";
-char path_output_layer[] = "Layers/output_layer.dat";
-
-
-typedef struct
-{   
-    double value;
-    double input_weights[num_input_nodes];
-    double bias;
-}Neuron;
-
-typedef struct
-{
-    double value;
-    double output_weights[num_hidden_nodes];
-    double bias;
-}Output_Neuron;
-
-typedef struct {
-    double value;
-}Input_Neuron;
-
-typedef struct {
-    Input_Neuron* input_layer;
-    Neuron* hidden_layer;
-    Output_Neuron* output_layer;
-}Network;
-
-
-typedef struct Image{
-    double pixels[num_input_nodes];
-    char letter;
-    double expected_output[num_output_nodes];
-    struct Image * next; 
-}Image;
-
-typedef struct Images_Array{
-    struct Image * first_img;
-}Images_Array;
-
-void add_to_imgs_array(Images_Array * array, Image * img){ 
-    if(array->first_img == NULL){
-        array->first_img = img;
-    }else{
-        Image * curr_img = array->first_img;
-        int cont = 2;
-        while(!(curr_img->next == NULL)){
-            curr_img = curr_img->next;
-            cont++;
-        }   
-        curr_img->next = img;
-    }
-}
-
-int array_size(Image * img, int num){
-    if(img->next == NULL){
-        return num;
-    }
-    else{
-        return array_size(img->next, num+1);
-    }
-}
 
 
 double sigmoid(double x) {
@@ -97,18 +27,6 @@ double dSigmoid(double x) {
 double init_weight() { 
     return ((double)rand())/((double)RAND_MAX); 
     }
-
-
-void output(char letter, double * result){
-    char letters [num_output_nodes]= {'A', 'B', 'C', 'D', 'E', 'F', '_'};
-    for(int i = 0; i < num_output_nodes; i++){
-        if(letters[i] == letter){
-            result[i] = 1.0f;
-        }else{
-            result[i] = 0.0f;
-        }
-    }
-}
 
 void load_data_training(Images_Array* img_array){
 
@@ -156,6 +74,22 @@ void load_data_training(Images_Array* img_array){
     }
 }
 
+
+void add_to_imgs_array(Images_Array * array, Image * img){ 
+    if(array->first_img == NULL){
+        array->first_img = img;
+    }else{
+        Image * curr_img = array->first_img;
+        int cont = 2;
+        while(!(curr_img->next == NULL)){
+            curr_img = curr_img->next;
+            cont++;
+        }   
+        curr_img->next = img;
+    }
+}
+
+
 void shuffle_array(Images_Array* array){
     int size = array_size(array->first_img, 1);
     for(int i = 0; i < size; i++){
@@ -199,6 +133,22 @@ void shuffle_array(Images_Array* array){
     }
 
 }
+
+
+
+void output(char letter, double * result){
+    char letters [num_output_nodes]= {'A', 'B', 'C', 'D', 'E', 'F', '_'};
+
+    for(int i = 0; i < num_output_nodes; i++){
+
+        if(letters[i] == letter){
+            result[i] = 1.0f;
+        }else{
+            result[i] = 0.0f;
+        }
+    }
+}
+
 
 
 void load_image_test(Input_Neuron * input_layer){
@@ -281,7 +231,9 @@ void test_network(Images_Array * img_array, Input_Neuron* input_layer, Neuron* h
     }
 
 
-
+/**
+ * Method used to load the hidden layer from a simple .dat file
+ */ 
 Neuron* load_hidden_layer(Neuron* hidden_layer) {
     
     FILE *file;
@@ -318,6 +270,9 @@ int save_hidden_layer(Neuron* hidden_layer) {
     return 1;
 }
 
+/**
+ * Method used to load the output layer from a simple .dat file
+ */ 
 Output_Neuron* load_output_layer(Output_Neuron* output_layer) {
     
     FILE *file;
