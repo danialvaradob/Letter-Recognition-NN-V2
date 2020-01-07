@@ -5,10 +5,22 @@
 #include <math.h>
 
 #define num_input_nodes 784
-#define num_output_nodes 7 
-#define num_hidden_nodes 32
-#define learning_rate 0.65
-#define EPOCHS 1000
+#define num_output_nodes  7
+#define num_hidden_nodes  32
+#define learning_rate  0.65
+#define EPOCHS  1000
+
+// numbers of files per folder
+static int imgs_A_num = 260;
+static int imgs_B_num = 265;
+static int imgs_C_num = 250;
+static int imgs_D_num = 274;
+static int imgs_E_num = 365;
+static int imgs_F_num = 283;
+static int imgs_num = 10;
+
+
+
 
 char path_hidden_layer[] = "Layers/hidden_layer.dat";
 char path_output_layer[] = "Layers/output_layer.dat";
@@ -53,4 +65,8 @@ typedef struct Images_Array{
     struct Image * first_img;
 } Images_Array;
 
-void add_to_imgs_array(Images_Array * array, Image * img) {}
+void add_to_imgs_array(Images_Array * array, Image * img);
+void set_img_output(char letter, double * result);
+void print_imgs(Images_Array* img_array);
+
+

@@ -29,74 +29,23 @@ double init_weight() {
     }
 
 
+void shuffle_array2(Images_Array* array){
 
-void load_data_training(Images_Array* img_array){
-
-    FILE *file;
-    char* files [] = {"A", "B", "C", "D", "E", "F", "_"};
-    for(int i = 0; i < num_output_nodes; i++){
-        char f [11];
-        strcpy(f, "Data/");
-        strcat(f, files[i]);
-        strcat(f, ".txt");
-        printf("%s\n",f);
-        file = fopen(f, "r"); 
-        if (file == NULL) {
-          perror("Error al abrir el file");
-          exit(EXIT_FAILURE);
-        }
-
-        int eof = 0;
-        int is_empty = 1;
-        int img_counter = 0;
-        while(!eof){
-            char ch[3];
-            Image * new_img = malloc(sizeof(Image));
-            is_empty = 1;
-            for(int j=0; j<num_input_nodes; j++){
-                ch[0] = fgetc(file);    
-                if(ch[0] == '\n' || ch[0] == '\r') break;  
-                if(ch[0] == EOF){
-                    eof = 1;
-                    break;
-                }
-                ch[1] = fgetc(file);    
-                ch[2] = fgetc(file);    
-                fgetc(file);            
-                new_img->pixels[j] = atof(ch);
-                new_img->letter = files[i][0];
-                output(files[i][0], new_img->expected_output);
-                new_img->next = NULL;
-                is_empty = 0;
-            }
-            if(!is_empty){
-                add_to_imgs_array(img_array, new_img);
-                img_counter++;
-            }
-        }
-        fclose(file);
-        printf("%d\n", img_counter); 
-    }
 }
 
-
-void add_to_imgs_array(Images_Array * array, Image * img){ 
-    if(array->first_img == NULL){
-        array->first_img = img;
-    }else{
-        Image * curr_img = array->first_img;
-        int cont = 2;
-        while(!(curr_img->next == NULL)){
-            curr_img = curr_img->next;
-            cont++;
-        }   
-        curr_img->next = img;
+int get_size(Image *first_img) {
+    int size = 0;
+    Image* curr_img = first_img;
+    while (curr_img->next != NULL) {
+        size++;
     }
-}
+    return size;
 
+}
 
 void shuffle_array(Images_Array* array){
-    int size = array_size(array->first_img, 1);
+    int size = get_size(array->first_img);
+    printf("Array size: %d\n", size);
     for(int i = 0; i < size; i++){
         int j = i + rand() / (RAND_MAX/(size-i)+1);
         if(i != j){
@@ -141,8 +90,130 @@ void shuffle_array(Images_Array* array){
 
 
 
-void output(char letter, double * result){
-    char letters [num_output_nodes]= {'A', 'B', 'C', 'D', 'E', 'F', '_'};
+/**
+ * Read images from file.
+ */
+Images_Array* get_images(char* path, int number_of_images, Images_Array* images, char letter) {
+    
+    FILE *file = NULL;
+    file = fopen(path, "r");
+    
+    if (file == NULL) {
+        printf("Error al abrir el archivo\n");
+    }
+    printf("Path del archivo %s", path);
+    printf("\n");
+
+    int counter, max, pixel_counter, img_counter;
+
+    pixel_counter = 0;
+    counter = 0;
+    
+    max = number_of_images * 784;
+    //printf("Number of images %d\n", number_of_images);
+    double* all_images_in_file = malloc(sizeof(double) * max);
+
+    counter = 0;
+    
+    while (!feof(file)) {
+        fscanf(file, "%lf", &all_images_in_file[counter]);
+        counter++;
+        
+    }
+    
+    fclose(file);
+
+
+    
+
+    Image* new_img;
+    counter = 0;
+    img_counter = 0;
+    while (img_counter < number_of_images) {
+        pixel_counter = 0;
+        //printf("Creating new image\n");
+        new_img = malloc(sizeof(Image));
+        new_img->letter = letter;
+        set_img_output(letter, new_img->expected_output);
+
+        new_img->next = NULL;
+        while (pixel_counter < 784) {
+            new_img->pixels[pixel_counter] = all_images_in_file[counter];
+
+            counter++;
+            pixel_counter++;
+        }
+        img_counter++;
+        add_to_imgs_array(images, new_img);
+
+        
+
+    }
+
+    free(all_images_in_file);
+    
+    return images;
+}
+
+
+void load_data_training(Images_Array* img_array){
+
+    FILE *file;
+    char* files[] = {"A", "B", "C", "D", "E", "F", "_"};
+    int amount_of_imgs[] = {imgs_A_num, imgs_B_num, imgs_C_num, imgs_D_num, imgs_E_num, 
+                imgs_F_num, imgs_num};
+    for(int i = 0; i < num_output_nodes; i++){
+        char f [11];
+        strcpy(f, "Data/");
+        strcat(f, files[i]);
+        strcat(f, ".txt");
+        //printf("%s\n",f);
+        file = fopen(f, "r"); 
+        if (file == NULL) {
+          perror("Error al abrir el file");
+          exit(EXIT_FAILURE);
+        }
+
+        img_array = get_images(f, amount_of_imgs[i], img_array, files[i][0]);
+        print_imgs(img_array);
+        exit(0);
+
+    }
+}
+
+
+void print_imgs(Images_Array* img_array) {
+    Image* curr_img = img_array->first_img;
+    int counter = 0;
+    while (curr_img->next != NULL) {
+        printf("%c", curr_img->letter);
+        printf("%d " , counter);
+        counter++;
+        curr_img = curr_img->next;
+    }
+    printf("\n amount: %d\n", counter);
+}
+
+void add_to_imgs_array(Images_Array * array, Image * img){ 
+    if(array->first_img == NULL){
+        array->first_img = img;
+    }else{
+        Image * curr_img = array->first_img;
+        int cont = 2;
+        while(!(curr_img->next == NULL)){
+            curr_img = curr_img->next;
+            cont++;
+        }   
+        curr_img->next = img;
+    }
+}
+
+
+
+
+
+void set_img_output(char letter, double * result) {
+    char letters[num_output_nodes] = {'A', 'B', 'C', 'D', 'E', 'F', '_'};
 
     for(int i = 0; i < num_output_nodes; i++){
 
@@ -422,71 +493,6 @@ int main(int argc, const char * argv[]){
     Images_Array * img_array = malloc(sizeof(Images_Array));
     load_data_training(img_array);
     shuffle_array(img_array);
-    
-
-    // setting layers
-    Input_Neuron* input_layer = malloc(sizeof(Input_Neuron)*num_input_nodes);
-    Neuron* hidden_layer = malloc(sizeof(Neuron) *num_hidden_nodes);
-    Output_Neuron* output_layer = malloc(sizeof(Output_Neuron)*num_output_nodes);
-
-    int train_network_bool = 1;
-    if(train_network_bool){
-        printf("\n===== ENTRENANDO =====\n");
-        int first_time = 0;
-
-        if (first_time) {
-            printf("Creating new weights...\n");
-            
-
-            for(int i=0; i<num_hidden_nodes; i++) {
-                hidden_layer[i].bias = init_weight();
-                for(int j=0; j<num_input_nodes; j++){
-                    hidden_layer[i].input_weights[j] = init_weight();
-                }
-            }
-
-            for (int i=0; i<num_output_nodes; i++) {
-                output_layer[i].bias = init_weight();
-                for (int j=0; j<num_hidden_nodes; j++) {
-                    output_layer[i].output_weights[j] = init_weight();
-                }
-            }
-            
-        } else {
-            hidden_layer = load_hidden_layer(hidden_layer);
-            output_layer = load_output_layer(output_layer);
-            printf("\nNetwork loaded\n");
-        }
-
-        //printf("\nNodos Ocultos: %d, LR: %f, EPOCHS:%d\n",
-        //    num_hidden_nodes, learning_rate, EPOCHS);
-
-        train_network(img_array, hidden_layer, output_layer);
-        test_network(img_array, input_layer, hidden_layer, output_layer);
-        save_hidden_layer(hidden_layer);
-        save_output_layer(output_layer);
-
-
-    }else{
-        hidden_layer = load_hidden_layer(hidden_layer);
-        output_layer = load_output_layer(output_layer);
-
-        printf("\n===== PROBANDO =====\n");
-        // executing python file to transform raw data to usable data for the network
-        system("python execute_nn.py"); 
-
-        // loading image to input layer, to run in network
-        load_image_test(input_layer);
-
-        // testing networks output
-        test_letter(input_layer, hidden_layer, output_layer);
-        printf("Network output:\n");
-        print_output(output_layer);
-        printf("Letter is a: %c\n", get_letter(output_layer));
-    }
-
-
-    printf("============== DONE ==================\n");
     
     return 0;
 }
