@@ -65,7 +65,7 @@ void load_data_training(Images_Array* img_array){
                 fgetc(file);            
                 new_img->pixels[j] = atof(ch);
                 new_img->letter = files[i][0];
-                output(files[i][0], new_img->expected_output);
+                set_img_output(files[i][0], new_img->expected_output);
                 new_img->next = NULL;
                 is_empty = 0;
             }
@@ -94,9 +94,20 @@ void add_to_imgs_array(Images_Array * array, Image * img){
     }
 }
 
+int get_size(Image *first_img) {
+    int size = 0;
+    Image* curr_img = first_img;
+    while (curr_img->next != NULL) {
+        size++;
+        curr_img = curr_img->next;
+    }
+    return size;
+
+}
+
 
 void shuffle_array(Images_Array* array){
-    int size = array_size(array->first_img, 1);
+    int size = get_size(array->first_img);
     for(int i = 0; i < size; i++){
         int j = i + rand() / (RAND_MAX/(size-i)+1);
         if(i != j){
@@ -141,7 +152,7 @@ void shuffle_array(Images_Array* array){
 
 
 
-void output(char letter, double * result){
+void set_img_output(char letter, double * result){
     char letters [num_output_nodes]= {'A', 'B', 'C', 'D', 'E', 'F', '_'};
 
     for(int i = 0; i < num_output_nodes; i++){
@@ -429,7 +440,7 @@ int main(int argc, const char * argv[]){
     Neuron* hidden_layer = malloc(sizeof(Neuron) *num_hidden_nodes);
     Output_Neuron* output_layer = malloc(sizeof(Output_Neuron)*num_output_nodes);
 
-    int train_network_bool = 1;
+    int train_network_bool = 0;
     if(train_network_bool){
         printf("\n===== ENTRENANDO =====\n");
         int first_time = 0;

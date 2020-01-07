@@ -13,6 +13,8 @@ directoriess = os.listdir(path_original_imgs)
 
 for directories in directoriess:
     images = os.listdir(path_original_imgs + "/" + directories)
+    print("Len: ", len(images))
+    
     f= open(path_data + "/" + directories + ".txt","w")
     for image in images:
         img = Image.open(path_original_imgs + "/" + directories + "/" + image)
@@ -29,6 +31,7 @@ for directories in directoriess:
             f.write(str(num) + " ")
         f.write("\r\n")
     f.close()
+    
 
 
 

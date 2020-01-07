@@ -38,6 +38,7 @@ int get_size(Image *first_img) {
     Image* curr_img = first_img;
     while (curr_img->next != NULL) {
         size++;
+        curr_img = curr_img->next;
     }
     return size;
 

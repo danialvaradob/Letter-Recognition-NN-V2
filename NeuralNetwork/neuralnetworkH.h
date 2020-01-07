@@ -11,11 +11,11 @@
 #define EPOCHS  1000
 
 // numbers of files per folder
-static int imgs_A_num = 260;
-static int imgs_B_num = 265;
-static int imgs_C_num = 250;
-static int imgs_D_num = 274;
-static int imgs_E_num = 365;
+static int imgs_A_num = 217;
+static int imgs_B_num = 227;
+static int imgs_C_num = 213;
+static int imgs_D_num = 235;
+static int imgs_E_num = 333;
 static int imgs_F_num = 283;
 static int imgs_num = 10;
 
