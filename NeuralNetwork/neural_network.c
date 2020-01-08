@@ -14,8 +14,6 @@ Structures based from:
 #include <math.h>
 #include "neuralnetworkH.h"
 
-
-
 double sigmoid(double x) {
     return 1 / (1 + exp(-x)); 
     }
@@ -28,6 +26,24 @@ double init_weight() {
     return ((double)rand())/((double)RAND_MAX); 
     }
 
+
+
+void interleave(Image* first, Image* second) {
+    Image* tail = NULL;
+    recInterleave(first, second, &tail);
+    }
+    
+Image* recInterleave(Image* first, Image* second, Image** tail) {
+    if (second == NULL) 
+        return NULL;
+    if (*tail == NULL) {
+        *tail = second;
+    } else {
+        (*tail)->next = second;*tail = second;}
+        /* The next pointer should be what you get by interleaving * the two lists, but with their roles reversed. */
+        second->next = recInterleave(second->next, first, tail);/* The ultimate head of the list is the first element of 'second' */
+    return second;
+}
 
 
 int get_size(Image *first_img) {
@@ -101,7 +117,6 @@ Images_Array* get_images(char* path, int number_of_images, Images_Array* images,
     }
     //printf("Path del archivo %s", path);
     //printf("\n");
-
     int counter, max, pixel_counter, img_counter;
 
     pixel_counter = 0;
@@ -117,12 +132,8 @@ Images_Array* get_images(char* path, int number_of_images, Images_Array* images,
         fscanf(file, "%lf", &all_images_in_file[counter]);
         counter++;
         
-    }
-    
+    }    
     fclose(file);
-
-
-    
 
     Image* new_img;
     counter = 0;
@@ -162,10 +173,13 @@ void load_data_training(Images_Array* img_array){
                 imgs_F_num, imgs_num};
     for(int i = 0; i < num_output_nodes; i++){
         char f [11];
+        
         strcpy(f, "Data/");
         strcat(f, letters[i]);
         strcat(f, ".txt");
+        
         //printf("%s\n",f);
+        
         file = fopen(f, "r"); 
         if (file == NULL) {
           perror("Error");
@@ -175,6 +189,8 @@ void load_data_training(Images_Array* img_array){
         img_array = get_images(f, amount_of_imgs[i], img_array, letters[i][0]);
         //print_imgs(img_array);
     }
+    shuffle_array(img_array);
+    print_imgs(img_array);
 }
 
 
@@ -203,9 +219,6 @@ void add_to_imgs_array(Images_Array * array, Image * img){
         curr_img->next = img;
     }
 }
-
-
-
 
 
 void set_img_output(char letter, double * result) {
@@ -412,9 +425,7 @@ void print_output(Output_Neuron* output_layer) {
         case 6:
             printf("_: %lf\n", output_layer[i].value);
             break;
-        
-        
-        
+              
         default:
             break;
         }
@@ -500,7 +511,7 @@ int main(int argc, const char * argv[]){
     printf("\n\n");
     Images_Array * img_array = malloc(sizeof(Images_Array));
     load_data_training(img_array);
-    shuffle_array(img_array);
+    
     //print_imgs(img_array);
 
     /////////////////////////
