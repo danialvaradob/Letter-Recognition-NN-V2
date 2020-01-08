@@ -7,8 +7,8 @@
 #define num_input_nodes 784
 #define num_output_nodes  7
 #define num_hidden_nodes  32
-#define learning_rate  0.65
-#define EPOCHS  100
+#define learning_rate  0.70
+#define EPOCHS  1000
 
 // numbers of files per folder
 static int imgs_A_num = 217;
@@ -69,7 +69,7 @@ typedef struct Images_Array{
 void add_to_imgs_array(Images_Array * array, Image * img);
 void set_img_output(char letter, double * result);
 void print_imgs(Images_Array* img_array);
-void shuffle_array(Images_Array* array);
+void shuffleList(Image** head);
 int get_size(Image *first_img);
 Images_Array* get_images(char* path, int number_of_images, Images_Array* images, char letter);
 void load_data_training(Images_Array* img_array);

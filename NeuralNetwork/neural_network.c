@@ -169,10 +169,45 @@ void load_data_training(Images_Array* img_array){
         img_array = get_images(f, amount_of_imgs[i], img_array, letters[i][0]);
         //print_imgs(img_array);
     }
-    //shuffle_array(img_array);
-    print_imgs(img_array);
+    shuffle_array(img_array);
+    //Image* temp_first = img_array->first_img;
+    //Image** temp = &temp_first;
+    //shuffleList(temp);
+    //img_array->first_img = *temp;
+    //print_imgs(img_array);
 }
 
+void load_data_training2(Images_Array* img_array){
+
+    FILE *file = NULL;
+    char* letters[] = {"A", "B", "C", "D", "E", "F", "_"};
+    int amount_of_imgs[] = {imgs_A_num, imgs_B_num, imgs_C_num, imgs_D_num, imgs_E_num, 
+                imgs_F_num, imgs_num};
+    for(int i = 0; i < num_output_nodes; i++){
+        char f [11];
+        
+        strcpy(f, "Data/");
+        strcat(f, letters[i]);
+        strcat(f, ".txt");
+        
+        //printf("%s\n",f);
+        
+        file = fopen(f, "r"); 
+        if (file == NULL) {
+          perror("Error");
+          exit(EXIT_FAILURE);
+        }
+
+        img_array = get_images(f, amount_of_imgs[i], img_array, letters[i][0]);
+        //print_imgs(img_array);
+    }
+    //shuffle_array(img_array);
+    Image* temp_first = img_array->first_img;
+    Image** temp = &temp_first;
+    shuffleList(temp);
+    img_array->first_img = *temp;
+    //print_imgs(img_array);
+}
 
 void print_imgs(Images_Array* img_array) {
     Image* curr_img = img_array->first_img;
@@ -544,7 +579,7 @@ int main(int argc, const char * argv[]){
 } */
 
 int main(int argc, const char * argv[]){
-    test();
+    //test();
 
     printf("========== RECONOCER LETRAS ==========\n");
     printf("\n\n");
