@@ -47,19 +47,20 @@ void shuffle_array(Images_Array* array){
     for(int i = 0; i < size; i++){
         int j = i + rand() / (RAND_MAX/(size-i)+1);
         if(i != j){
-            Image * curr_img1 = NULL; 
-            Image * ant1 = NULL;
-            Image * curr_img2 = NULL;
-            Image * ant2 = NULL;
             Image * curr_img = array->first_img;
+            Image * curr_img2 = NULL;
+            Image * curr_img1 = NULL; 
             Image * ant = NULL;
+            Image * ant1 = NULL;
+            Image * ant2 = NULL;
             int cont = 0;
-            while(curr_img1 == NULL || curr_img2 == NULL){
-                if(cont == i){
+
+            while(curr_img1 == NULL || curr_img2 == NULL) {
+                if (cont == i){
                     curr_img1 = curr_img;
                     ant1 = ant;
                 }
-                else if(cont == j){
+                else if (cont == j) {
                     curr_img2 = curr_img;
                     ant2 = ant;
                 }
@@ -67,14 +68,14 @@ void shuffle_array(Images_Array* array){
                 ant = curr_img;
                 curr_img = curr_img->next;
             }
-            if(i == 0){
+            if (i == 0) {
                 array->first_img = curr_img2;
                 ant2->next = curr_img1;             
             }
             else if(j == 0){
                 array->first_img = curr_img1;
                 ant1->next = curr_img2;
-            }else{
+            } else {
                 ant1->next = curr_img2;
                 ant2->next = curr_img1;
             }
@@ -83,7 +84,6 @@ void shuffle_array(Images_Array* array){
             curr_img2->next = curr_img;
         }
     }
-
 }
 
 
@@ -277,7 +277,7 @@ char get_letter(Output_Neuron* output_layer){
     return letters[highest_pos];
 }
 
-void test_network(Images_Array * img_array, Input_Neuron* input_layer, Neuron* hidden_layer, Output_Neuron* output_layer){
+void test_network_all_imgs(Images_Array * img_array, Input_Neuron* input_layer, Neuron* hidden_layer, Output_Neuron* output_layer){
     int correct = 0;
     int incorrect = 0;
     int total = 0;
@@ -422,7 +422,7 @@ void print_output(Output_Neuron* output_layer) {
 }
 
 
-void train_network_aux(Image * img, Neuron* _hidden_layer, Output_Neuron* _output_layer){    
+void train(Image * img, Neuron* _hidden_layer, Output_Neuron* _output_layer){    
     // FORWARD
     for (int j=0; j<num_hidden_nodes; j++) {
         double activation = _hidden_layer[j].bias;
@@ -477,7 +477,7 @@ void train_network(Images_Array * img_array, Neuron* hidden_layer, Output_Neuron
     for (int epoch = 0; epoch < EPOCHS; epoch++) {
         curr_img = img_array -> first_img;
         while(curr_img != NULL){
-            train_network_aux(curr_img, hidden_layer, output_layer);
+            train(curr_img, hidden_layer, output_layer);
             curr_img = curr_img->next;
         }
     }
@@ -502,16 +502,20 @@ int main(int argc, const char * argv[]){
     load_data_training(img_array);
     shuffle_array(img_array);
     //print_imgs(img_array);
-    
+
+    /////////////////////////
+    int ans;
+    printf("Entrenar red? [1 o 0]\n");
+    scanf("%d", &ans);
+    /////////////////////////
 
     // setting layers
     Input_Neuron* input_layer = malloc(sizeof(Input_Neuron)*num_input_nodes);
     Neuron* hidden_layer = malloc(sizeof(Neuron) *num_hidden_nodes);
     Output_Neuron* output_layer = malloc(sizeof(Output_Neuron)*num_output_nodes);
 
-    int train_network_bool = 1;
-    if(train_network_bool){
-        printf("\n===== ENTRENANDO =====\n");
+    if(ans){
+        printf("===== ENTRENANDO =====\n");
         int first_time = 0;
 
         if (first_time) {
@@ -535,14 +539,14 @@ int main(int argc, const char * argv[]){
         } else {
             hidden_layer = load_hidden_layer(hidden_layer);
             output_layer = load_output_layer(output_layer);
-            printf("\nNetwork loaded\n");
+            printf("Pesos cargados..\n");
         }
 
         //printf("\nNodos Ocultos: %d, LR: %f, EPOCHS:%d\n",
         //    num_hidden_nodes, learning_rate, EPOCHS);
-
+        printf("Epochs: %d\n", EPOCHS);
         train_network(img_array, hidden_layer, output_layer);
-        test_network(img_array, input_layer, hidden_layer, output_layer);
+        test_network_all_imgs(img_array, input_layer, hidden_layer, output_layer);
         save_hidden_layer(hidden_layer);
         save_output_layer(output_layer);
 
@@ -564,7 +568,6 @@ int main(int argc, const char * argv[]){
         print_output(output_layer);
         printf("Letter is a: %c\n", get_letter(output_layer));
     }
-
 
     printf("============== DONE ==================\n");
     

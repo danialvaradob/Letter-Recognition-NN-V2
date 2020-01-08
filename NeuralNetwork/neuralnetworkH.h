@@ -32,6 +32,7 @@ typedef struct
     double value;
     double output_weights[num_hidden_nodes];
     double bias;
+
 } Output_Neuron;
 
 
@@ -40,6 +41,7 @@ typedef struct
     double value;
     double input_weights[num_input_nodes];
     double bias;
+    
 } Neuron;
 
 typedef struct {
@@ -52,7 +54,6 @@ typedef struct {
     Output_Neuron* output_layer;
 
 } Network;
-
 
 typedef struct Image{
     double pixels[num_input_nodes];
