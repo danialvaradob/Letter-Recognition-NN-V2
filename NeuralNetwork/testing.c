@@ -12,7 +12,7 @@ Structures based from:
 #include <string.h>
 #include <time.h>
 #include <math.h>
-#include "neuralnetwork.h"
+#include "neuralnetworkH.h"
 
 
 
@@ -36,7 +36,7 @@ void shuffle_array2(Images_Array* array){
 int get_size(Image *first_img) {
     int size = 0;
     Image* curr_img = first_img;
-    while (curr_img->next != NULL) {
+    while (curr_img != NULL) {
         size++;
         curr_img = curr_img->next;
     }
@@ -176,9 +176,7 @@ void load_data_training(Images_Array* img_array){
         }
 
         img_array = get_images(f, amount_of_imgs[i], img_array, files[i][0]);
-        print_imgs(img_array);
-        exit(0);
-
+        //print_imgs(img_array);
     }
 }
 
@@ -186,7 +184,7 @@ void load_data_training(Images_Array* img_array){
 void print_imgs(Images_Array* img_array) {
     Image* curr_img = img_array->first_img;
     int counter = 0;
-    while (curr_img->next != NULL) {
+    while (curr_img != NULL) {
         printf("%c", curr_img->letter);
         printf("%d " , counter);
         counter++;

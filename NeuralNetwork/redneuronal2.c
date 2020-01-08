@@ -12,7 +12,7 @@ Structures based from:
 #include <string.h>
 #include <time.h>
 #include <math.h>
-#include "neuralnetwork.h"
+#include "neuralnetworkH.h"
 
 
 
@@ -97,7 +97,7 @@ void add_to_imgs_array(Images_Array * array, Image * img){
 int get_size(Image *first_img) {
     int size = 0;
     Image* curr_img = first_img;
-    while (curr_img->next != NULL) {
+    while (curr_img != NULL) {
         size++;
         curr_img = curr_img->next;
     }
