@@ -26,26 +26,6 @@ double init_weight() {
     return ((double)rand())/((double)RAND_MAX); 
     }
 
-
-
-void interleave(Image* first, Image* second) {
-    Image* tail = NULL;
-    recInterleave(first, second, &tail);
-    }
-    
-Image* recInterleave(Image* first, Image* second, Image** tail) {
-    if (second == NULL) 
-        return NULL;
-    if (*tail == NULL) {
-        *tail = second;
-    } else {
-        (*tail)->next = second;*tail = second;}
-        /* The next pointer should be what you get by interleaving * the two lists, but with their roles reversed. */
-        second->next = recInterleave(second->next, first, tail);/* The ultimate head of the list is the first element of 'second' */
-    return second;
-}
-
-
 int get_size(Image *first_img) {
     int size = 0;
     Image* curr_img = first_img;
@@ -189,14 +169,14 @@ void load_data_training(Images_Array* img_array){
         img_array = get_images(f, amount_of_imgs[i], img_array, letters[i][0]);
         //print_imgs(img_array);
     }
-    shuffle_array(img_array);
+    //shuffle_array(img_array);
     print_imgs(img_array);
 }
 
 
 void print_imgs(Images_Array* img_array) {
     Image* curr_img = img_array->first_img;
-    int counter = 0;
+    int counter = 1;
     while (curr_img != NULL) {
         printf("%c", curr_img->letter);
         printf("%d " , counter);
@@ -494,6 +474,63 @@ void train_network(Images_Array * img_array, Neuron* hidden_layer, Output_Neuron
     }
 }
 
+Image* splitAtHalf(Image* first) {
+    Image* fast = first;
+    while (fast->next->next != NULL) {
+        fast = fast->next->next;first = first->next;
+        }
+    /* Split the list at this point. */
+    Image* result = first->next;
+    first->next = NULL;
+    return result;
+}
+
+
+Image* recInterleave(Image* first, Image* second, Image** tail) {
+    if (second == NULL) return NULL;
+    if (*tail == NULL) {
+        *tail = second;} 
+    else {
+        (*tail)->next = second;*tail = second;
+        }
+    /* The next pointer should be what you get by interleaving * the two lists, but with their roles reversed. */
+    second->next = recInterleave(second->next, first, tail);
+    /* The ultimate head of the list is the first element of 'second' */
+    return second;
+}
+
+
+void interleave(Image* first, Image* second) {
+    Image* tail = NULL;
+    recInterleave(first, second, &tail);
+}
+
+void shuffleList(Image** head) {
+    if (* head == NULL) return;
+    Image* half = splitAtHalf(*head);
+    interleave(*head, half);
+    *head = half;
+}
+
+
+void test() {
+    Images_Array * img_array = malloc(sizeof(Images_Array));
+    load_data_training(img_array);
+
+    Image* temp_first = img_array->first_img;
+    Image** temp = &temp_first;
+    shuffleList(temp);
+    img_array->first_img = *temp;
+
+
+    print_imgs(img_array);
+    
+
+
+    exit(0);
+
+}
+
 /*
 int main(int argc, const char * argv[]){
     printf("========== RECONOCER LETRAS ==========\n");
@@ -507,6 +544,8 @@ int main(int argc, const char * argv[]){
 } */
 
 int main(int argc, const char * argv[]){
+    test();
+
     printf("========== RECONOCER LETRAS ==========\n");
     printf("\n\n");
     Images_Array * img_array = malloc(sizeof(Images_Array));
