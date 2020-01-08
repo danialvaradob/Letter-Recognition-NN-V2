@@ -68,5 +68,21 @@ typedef struct Images_Array{
 void add_to_imgs_array(Images_Array * array, Image * img);
 void set_img_output(char letter, double * result);
 void print_imgs(Images_Array* img_array);
-
-
+void shuffle_array(Images_Array* array);
+int get_size(Image *first_img);
+Images_Array* get_images(char* path, int number_of_images, Images_Array* images, char letter);
+void load_data_training(Images_Array* img_array);
+void print_imgs(Images_Array* img_array);
+void add_to_imgs_array(Images_Array * array, Image * img);
+void set_img_output(char letter, double * result);
+void load_image_test(Input_Neuron * input_layer);
+void test_letter(Input_Neuron* input_layer, Neuron* hidden_layer, Output_Neuron* output_layer);
+char get_letter(Output_Neuron* output_layer);
+void test_network(Images_Array * img_array, Input_Neuron* input_layer, Neuron* hidden_layer, Output_Neuron* output_layer);
+Neuron* load_hidden_layer(Neuron* hidden_layer);
+int save_hidden_layer(Neuron* hidden_layer);
+Output_Neuron* load_output_layer(Output_Neuron* output_layer);
+int save_output_layer(Output_Neuron* output_layer);
+void print_output(Output_Neuron* output_layer);
+void train_network_aux(Image * img, Neuron* _hidden_layer, Output_Neuron* _output_layer);
+void train_network(Images_Array * img_array, Neuron* hidden_layer, Output_Neuron* output_layer);
