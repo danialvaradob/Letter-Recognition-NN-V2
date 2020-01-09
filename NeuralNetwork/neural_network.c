@@ -328,7 +328,30 @@ void test_network_all_imgs(Images_Array * img_array, Input_Neuron* input_layer, 
     printf("Incorrect: %d\n", incorrect);
     printf("Total: %d\n", total);
     printf("Accuracy: %f\n",(double) correct / (double) total);
+}
+
+void test_network_all_imgs2(Images_Array * img_array, Neuron* hidden_layer, Output_Neuron* output_layer){
+    Input_Neuron* input_layer = malloc(sizeof(Input_Neuron)*num_input_nodes);
+    int correct = 0;
+    int incorrect = 0;
+    int total = 0;
+    Image * curr_img = img_array->first_img;
+    while(curr_img != NULL){
+        for(int i=0; i<num_input_nodes; i++){
+            input_layer[i].value = curr_img->pixels[i];
+        }
+        test_letter(input_layer, hidden_layer, output_layer);
+        
+        if(curr_img->letter == get_letter(output_layer)){
+            correct++;
+        }else{
+            incorrect++;
+        }
+        curr_img = curr_img->next;
+        total++;
     }
+    printf("Accuracy: %f\n",(double) correct / (double) total);
+}
 
 
 /**
@@ -382,6 +405,7 @@ Output_Neuron* load_output_layer(Output_Neuron* output_layer) {
     fread(&output_layer[0],sizeof(Output_Neuron), num_output_nodes , file);
 
     fclose(file);
+    printf("Output loaded: %lf\n", output_layer[0].output_weights[0]);
 
     return output_layer;
 }
@@ -399,10 +423,10 @@ int save_output_layer(Output_Neuron* output_layer) {
 
     if (file != NULL) {
         for (int i = 0; i < num_output_nodes; i++) {
-            fwrite(&output_layer[i] ,sizeof(Output_Neuron), 1 ,file);
-            
+            fwrite(&output_layer[i] ,sizeof(Output_Neuron), 1 ,file);   
         }
     }    
+    
     
     fclose(file);
 
@@ -502,6 +526,12 @@ void train_network(Images_Array * img_array, Neuron* hidden_layer, Output_Neuron
     Image * curr_img = NULL;
     for (int epoch = 0; epoch < EPOCHS; epoch++) {
         curr_img = img_array -> first_img;
+
+        if (epoch%100 == 0) {
+            printf("Epoch: %d ", epoch);
+            test_network_all_imgs2(img_array, hidden_layer, output_layer);
+        }
+
         while(curr_img != NULL){
             train(curr_img, hidden_layer, output_layer);
             curr_img = curr_img->next;
@@ -627,8 +657,7 @@ int main(int argc, const char * argv[]){
             printf("Pesos cargados..\n");
         }
 
-        //printf("\nNodos Ocultos: %d, LR: %f, EPOCHS:%d\n",
-        //    num_hidden_nodes, learning_rate, EPOCHS);
+
         printf("Epochs: %d\n", EPOCHS);
         train_network(img_array, hidden_layer, output_layer);
         test_network_all_imgs(img_array, input_layer, hidden_layer, output_layer);

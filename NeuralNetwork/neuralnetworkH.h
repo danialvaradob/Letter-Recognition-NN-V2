@@ -5,10 +5,10 @@
 #include <math.h>
 
 #define num_input_nodes 784
-#define num_output_nodes  7
 #define num_hidden_nodes  32
-#define learning_rate  0.70
-#define EPOCHS  1000
+#define num_output_nodes  7
+#define learning_rate  0.5
+#define EPOCHS  1500
 
 // numbers of files per folder
 static int imgs_A_num = 217;
@@ -20,11 +20,8 @@ static int imgs_F_num = 283;
 static int imgs_num = 10;
 
 
-
-
 char path_hidden_layer[] = "Layers/hidden_layer.dat";
 char path_output_layer[] = "Layers/output_layer.dat";
-
 
 
 typedef struct
