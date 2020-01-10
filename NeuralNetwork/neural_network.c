@@ -405,8 +405,7 @@ Output_Neuron* load_output_layer(Output_Neuron* output_layer) {
     fread(&output_layer[0],sizeof(Output_Neuron), num_output_nodes , file);
 
     fclose(file);
-    printf("Output loaded: %lf\n", output_layer[0].output_weights[0]);
-
+    
     return output_layer;
 }
 
@@ -616,7 +615,7 @@ int main(int argc, const char * argv[]){
     Images_Array * img_array = malloc(sizeof(Images_Array));
     load_data_training(img_array);
     
-    //print_imgs(img_array);
+ 
 
     /////////////////////////
     int ans;
@@ -631,11 +630,9 @@ int main(int argc, const char * argv[]){
 
     if(ans){
         printf("===== ENTRENANDO =====\n");
-        int first_time = 0;
-
+        int first_time = 1;
         if (first_time) {
             printf("Creating new weights...\n");
-            
 
             for(int i=0; i<num_hidden_nodes; i++) {
                 hidden_layer[i].bias = init_weight();

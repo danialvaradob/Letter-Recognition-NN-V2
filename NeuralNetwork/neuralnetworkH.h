@@ -5,10 +5,10 @@
 #include <math.h>
 
 #define num_input_nodes 784
-#define num_hidden_nodes  32
+#define num_hidden_nodes  784
 #define num_output_nodes  7
-#define learning_rate  0.5
-#define EPOCHS  1500
+#define learning_rate  0.1
+#define EPOCHS  1000
 
 // numbers of files per folder
 static int imgs_A_num = 217;
