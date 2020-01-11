@@ -1,0 +1,214 @@
+
+\documentclass[12pt,journal,compsoc]{IEEEtran}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{graphicx}
+\usepackage{listings}
+\usepackage{hyperref}
+\usepackage{graphicx}
+\usepackage{float}
+\graphicspath{ {./imagenes/}}
+
+\usepackage[spanish,es-noshorthands]{babel}
+
+\lstdefinestyle{customc}{
+    basicstyle=\footnotesize,
+    numbers=left,
+    stepnumber=1,
+    showstringspaces=false,
+    tabsize=1,
+    breaklines=true,
+    breakatwhitespace=false,
+}
+\lstset{style=customc}
+
+
+
+\usepackage{color}
+
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+
+%Python chiva
+\input{pythonHighlitgh.tex}
+
+\begin{document}
+%
+% paper title
+% can use linebreaks \\ within to get better formatting as desired
+\title{Neural Network\\}
+
+\author{Daniel Alvarado Bonilla,~2014089192}
+
+
+% The paper headers
+\markboth{TEC Inteligencia Artificial \ Prof. Ing. Esteban Arias Méndez, II Semestre del 2019}%
+{Alvarado \MakeLowercase{\textit{et al.}}: Proyecto 4 — Neural Network The Examiner}
+
+
+
+\IEEEcompsoctitleabstractindextext{%
+\begin{abstract}
+This document describes the implementation of a neural network capable of identifying the letters A, B, D, E, and F in handheld photos of pieces of paper. The network was implemented using the C language, while the preprocessing of the images was done utilizing Python with the \textit{skimage} and \textit{cv2} libraries.
+\end{abstract}
+\begin{IEEEkeywords}
+Inteligencia Artificial, Red Neuronal, C, Letras
+\end{IEEEkeywords}}
+
+
+\maketitle
+\IEEEdisplaynotcompsoctitleabstractindextext
+\IEEEpeerreviewmaketitle
+
+\section{Introducción}
+
+\IEEEPARstart{L}as redes neuronales resurgieron en los años ochenta tras un periodo de inactividad y actualmente, en la segunda década del siglo XXI, se han consolidado como un "próspero campo de investigación" \cite[p. 5]{Bottou} \cite{KroseSmagt}. Sin embargo, poco después de su génesis en los cuarentas gracias al trabajo de Warren McCulloch y Walter Pitts, la publicación de un famoso libro sepultó por varios años las redes neuronales y desvió los fondos de investigación hacia otros temas \cite{KroseSmagt}.
+
+Ese famoso y casi fulminante libro es \textit{Perceptrons: an introduction to computational geometry} por Marvin Minsky y Seymour Papert, publicado en 1969. En dicho libro, los autores "mostraron las deficiencias del modelo perceptrón" \cite[p. 13]{KroseSmagt} al probar matemáticamente que "un único perceptrón [...] era incapaz de aprender la función de 'o' exclusivo (conocida como XOR)" \cite{Ballantyne}.
+
+En su momento, Minsky y Papert criticaron la falta de rigurosidad matemática con la cual se estaban desarrollando las distintas aplicaciones de redes neuronales e insistieron en la necesidad de una base teórica sólida para poder determinar la efectividad de las mismas. Con esto, buscaban evitar que el progreso de esta área de estudio se realizara "solamente con intuición y experimentación" \cite[p. 5]{Bottou}.
+
+Sin embargo, como se mencionó, las redes neuronales salieron de su tumba en los años ochenta. Este resurgimiento se dio gracias, principalmente, al establecimiento de hitos teóricos como "el descubrimiento de retro-propagación de errores [...] y nuevos avances en hardware que incrementaron las capacidades de procesamiento" \cite[p. 13]{KroseSmagt}.
+
+Hoy en día, "es innegable la efectividad de las redes neuronales profundas en aplicaciones prácticas como el reconocimiento del habla y la visión artificial" \cite[p. 5]{Bottou}. Redes de este tipo se utilizan en asistentes personales en celulares con los cuales se puede conversar, como quien habla con otro ser humano; y en vehículos que se manejan solos.
+
+En este documento, se describe la implementación de una red neuronal pequeña que es capaz de reconocer las letras A, B, C, D, E y F en imágenes que corresponden al solucionario de un examen de selección única. Por esta razón, las letras están encerradas en casillas numeradas según la pregunta a la correspondiente.
+
+
+ 
+\section{Marco Teórico}
+Una red neuronal artificial es un "'modelo computacional' con características particulares como la habilidad de adaptarse o aprender, de generalizar, de agrupar u organizar datos; y cuya operación está basada en el procesamiento paralelo" \cite[p. 13]{KroseSmagt}. Así, sus dos grandes puntos fuertes son su estructura paralelizada y su capacidad de aprender y generalizar; es decir, la habilidad de producir "salidas razonables para entradas no presentes durante el entrenamiento (aprendizaje)" \cite{Haykin}.
+
+En otras palabras, una "red neuronal es un procesador distribuido masivamente paralelo compuesto de unidades de procesamiento simples que tiene una propensión natural por almacenar conocimiento experimental y hacerlo disponible para su uso" \cite[p. 2]{Haykin}.
+
+Las redes neuronales artificiales son abstracciones matemáticas de las redes neuronales biológicas presentes en el cerebro \cite{Haykin}. Se podría incluso decir que son una \textit{simplificación excesiva} de los modelos biológicos \cite{KroseSmagt}, pero lo cierto es que su inspiración es completamente biológica. Como menciona Kriesel \cite{Kriesel}, "las redes neuronales tecnológicas son tan solo caricaturas de la naturaleza" [p. 13].
+
+Algunas características importantes de las redes neuronales son su capacidad de ser \textit{no-lineales} y de generar mapeos entre entradas y salidas, lo cual se logra gracias a un proceso de aprendizaje supervisado. Debido a lo anterior, las redes son altamente adaptables a nuevos cambios que puedan aparecer en el ambiente de operaciones. Para modificar el mapeo generado bastaría con volver a entrenar la red con un conjunto de datos nuevo \cite{Haykin}.
+
+Las unidades básicas de procesamiento de una red neuronal son, como es de esperarse, las neuronas. La primera abstracción de una neurona (es decir, una red neuronal de una capa) fue el \textit{perceptrón} de Rosenblatt. "El perceptrón es la forma más simple de una red neuronal usada para la clasificación de patrones linealmente separables" \cite[p. 48]{Haykin}.
+
+La neurona (perceptrón) se compone de tres partes principales: las sinapsis o enlaces de conexión, el sumador y la función de activación. Los enlaces de conexión conectan las neuronas de una capa con la otra y poseen un peso o valor asignado, los cuales son modificados a medida que el entrenamiento avanza. El sumador realiza la suma de todas las señales de entrada con sus respectivos pesos de los enlaces de conexión. Por último, la función de activación toma los resultados de cada neuronas obtenidos por el sumador y los transforma a valores dentro de un rango establecido \cite{Haykin}.
+
+Algunas funciones de activación utilizadas son la \textit{función del umbral}, la \textit{función sigmoide} \cite{Haykin}, el \textit{rectificador} (ReLU), la \textit{función softmax}, entre otras. Cada una provee resultados diferentes y son útiles en distintos escenarios.
+
+Como se mencionó brevemente, una red neuronal puede tener una o varias capas (arquitectura). En general, todas poseen al menos una de entradas (\textit{input layer}) y una de salidas (\textit{output layer}). Si la red sólo posee las dos mencionadas, se dice que es una red de una sola capa. Si, por el contrario, la red tiene más niveles, se dice que es una red neuronal \textit{multicapa} o \textit{profunda}. A estas capas intermedias se les llama \textit{hidden layers}.
+
+Una red neuronal será tan efectiva, primero, como abundantes sean los datos con los cuales es entrenada. Como mencionan Wang \& Perez \cite{WangPerez}, "[e]s conocimiento general que mientras más datos tenga un algoritmo de ML, más efectivo puede ser" [p. 1]. Asimismo, es necesario que estos datos sean de alta calidad y fidedignos a la realidad que representan \cite{TanakaAranha}. Sin embargo, generar u obtener muchos datos distintos puede ser una actividad demandante y difícil.
+
+Para solucionar esto, se ideó la aumentación de los datos (del inglés \textit{data augmentation}, técnica que ha probado dar buenos resultados en las redes neuronales de clasificación \cite{WangPerez}. La idea, grosso modo, es tomar un conjunto relativamente pequeño de datos y, por medio de modificaciones, crear nuevos elementos. Estas modificaciones, en el caso de que los datos sean imágenes, pueden ser distintos filtros para generar ruido o transformaciones como rotaciones o traslaciones.
+
+
+
+
+\section{Implementación}
+\subsection{Descripción del problema}
+Los estudiantes del profesor Esteban Arias Méndez del Tecnológico de Costa Rica resuelven los exámenes de distintos cursos utilizando una plantilla de respuestas, la cual posee una cuadrícula numerada que corresponde a cada una de las preguntas de selección única (ver Figuras \ref{fig:PlantilaEj1}, \ref{fig:PlantilaEj2} y \ref{fig:PlantilaEj3}). En esta plantilla, los estudiantes escriben las respuestas utilizando las letras A, B, C, D, E, F; según corresponda.
+
+Esta red, agilizará el proceso de detección de las letras utilizadas en el exámen. Donde podrá identificar dada una foto la letra. En caso de no contener una letra, la red podrá determinar lo mismo. El comportamiento cuando se utiliza una letra que no sea de las anteriores es desconocido.
+
+\subsection{Procesamiento de las imágenes}
+Para todo el pre-procesamiento de las imágenes (generación de datos, aplicación de filtros, modificación de tamaños) se utilizó el lenguaje Python.
+
+Para el entrenamiento de la red neuronal que se encarga de identificar las letras, se crearon un total de 1518 imágenes: obtenidas por los datos de diferentes estudiantes que crearon distintas versiones de las letras mencionadas anteriormente. Cada letra se divide en una carpeta, dicha carpeta contiene un aproximado de 220 letras.
+
+El proceso empleado en estás imagenes se descompone de la siguiente forma:
+
+Primero, 
+
+
+Por último, se utiliza la biblioteca \textit{\textbf{cv2}} para leer las imágenes aumentadas de 28x28 píxeles como una matriz (cada elemento de la matriz representa un píxel con un valor entre 0 y 255). Luego, con la misma biblioteca, se le aplica una función de \textit{flatten} para convertir la matriz en un \textit{array} plano. Posterior a esto, se guarda el archivo en 
+
+Todos los arreglos son almacenados en un archivo, el cual es leído por el programa de la red neuronal, escrito en el lenguaje C. Se generan, en total, 2475 imágenes (11 imágenes iniciales x 6 letras x 45 imágenes aumentadas). 
+
+
+\subsection{Arquitectura de las redes neuronales}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.35\textwidth]{images/NNdiagram.png}
+    \caption{Modelo}
+    \label{fig:NNdiagram}
+\end{figure}
+
+La red neuronal que identifica las letras (ver Fig. \ref{fig:NNdiagram}) está compuesta por una capa de entradas (\textit{input layer}) de 784 nodos: uno por cada píxel de las imágenes de tamaño 28x28. Además, cuenta con una \textit{hidden layer} se utilizó una de tamaño 784, por último, una capa de salidas (\textit{output layer}) de 7 nodos: uno por cada letra a identificar y uno para caracteres desconocidos.
+
+Para el backtracking de este modelo de perceptrón, es decir la etapa en la cual se debe de efectuar un pequeño cambio en los pesos para así disminuir el error de la red, fue basado en lo siguiente:
+\begin{itemize}
+  \item Se calcula los cambios en los pesos de la capa de salida, dicho cambio llamado delta, utilizando la derivada del error (valor esperoda $-$ valor obtenido). Lo anterior basándose en \textit{Min Square Error}, según \cite{Kim}.
+  \item Para los pesos de la capa oculta ocurre un proceso similar, calculando el error de un nodo oculto con la suma del error de todos sus nodos de salida. En otras palabras sumando todos los delta de los nodos de salida para un nodo oculto.
+\end{itemize}
+
+Para este modelo de perceptrón la función de activación seleccionada fue \textit{Sigmoid}. Posterior a esto mediante la derivada de la misma y el error obtenido se ajustan los pesos, el paso anterior usando \textit{Min Square Error}.  
+
+
+
+\section{Análisis de resultados}
+
+Para los resultados se realizaron entrenamientos con un mismo modelo, obteniendo la mejor exactitud con 784 nodos en la capa oculta. Se utilizan un total de $1518$ imágenes El valor \textit{Learning rate} fue moderado mediante pruebas, también especificadas a continuación. Para las $1518$ imágenes se efectuaron 1000 epocs para el entrenamiento de dicha red. //
+Resultados obtenidos con $784$ nodos en la capa oculta, \textit{Learning Rate} de $0.1$: 
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.35\textwidth]{images/results_784.jpg}
+    \caption{Resultados - 1000 epochs}
+    \label{fig:Resultados784_1}
+\end{figure}
+
+
+Resultados obtenidos con $784$ nodos en la capa oculta, \textit{Learning Rate} de $0.5$: 
+
+
+
+
+
+\section{Conclusiones}
+
+Luego investigar acerca de los diferentes perceptrones a modelar para crear nuestra Red Neuronal, se concluye que para nuestro problema la mejor opción fue aquella de tres diferentes capas (no se realizaron pruebas con más), conformado por una capa de entrada, una capa oculta y por último la capa de salida. Las distinas pruebas tenían una cantidad e $32$, $64$ y $784$ nodos/neuronas en la capa oculta. Los resultados más rápidos obtenidos y exactos, fueron aquellos utilizando 784 neuronas en la capa oculta. Posterior al \textit{batch} número $15$ los resultados fueron excelentes. Con un total de $480$ imágenes, ya la exactitud de la red era de $0.9965$. Esta red siendo simple, logra reconocer letras. Pero pueden utilizarse en muchísimos ámbitos, siendo realmente útiles en un futuro cercano. 
+
+\clearpage
+
+\begin{thebibliography}{1}
+
+
+\bibitem{Bottou}
+Bottou, L. (2017). Perceptrons An Introduction to Computational Geometry Reissue of the 1988 Expanded Edition with a new foreword by Léon Bottou. Recuperado de: \url{https://leon.bottou.org/publications/pdf/perceptrons-2017.pdf}.
+
+\bibitem{KroseSmagt}
+Kröse, B. \& van der Smagt, P. (1996). An Introduction to Neural Networks. Recuperado de: \url{https://www.infor.uva.es/~teodoro/neuro-intro.pdf}.
+
+\bibitem{Ballantyne}
+Ballantyne, A. (2017). Minsky's "And / Or" Theorem: A Single Perceptron's Limitations. Recuperado de: \url{https://alan.do/minskys-and-or-theorem-a-single-perceptron-s-limitations-490c63a02e9f}.
+
+\bibitem{Haykin}
+Haykin, S. (2009). Neural Networks and Learning Machines. Recuperado de: \url{https://dai.fmph.uniba.sk/courses/NN/haykin.neural-networks.3ed.2009.pdf}.
+
+\bibitem{Kriesel}
+Kriesel, D. (2007). A Brief Introduction to Neural Networks. Recuperado de: \url{http://www.dkriesel.com/_media/science/neuronalenetze-en-zeta2-2col-dkrieselcom.pdf}.
+
+\bibitem{Kim}
+Kim, S. (2019). Back-propagation Demystified in 7 minutes. Recuperado de:
+\url{https://towardsdatascience.com/back-propagation-demystified-in-7-minutes-4294d71a04d7}
+
+\bibitem{scikit}
+scikit-image (s. f.). Scikit-image 0.17.dev0 docs. Module: util. Random\_noise. Recuperado de: \url{https://scikit-image.org/docs/dev/api/skimage.util.html#skimage.util.random_noise}.
+
+\bibitem{WangPerez}
+Wang, J. \& Perez, L. (s. f.). The Effectiveness of Data Augmentation in Image Classification using Deep Learning. Recuperado de: \url{http://cs231n.stanford.edu/reports/2017/pdfs/300.pdf}.
+
+\bibitem{TanakaAranha}
+Tanaka, F. \& Aranha, C. (2019). Data Augmentation Using GANs. \textit{Proceedings of Machine Learning Research XXX, pp. 1-16} Recuperado de: \url{https://arxiv.org/pdf/1904.09135.pdf}.
+
+\bibitem{Becerra}
+Becerra, S. (2019). Simple neural network implementation in C. Recuperado de: \url{https://towardsdatascience.com/simple-neural-network-implementation-in-c-663f51447547}.
+
+\end{thebibliography}
+
+
+\clearpage
+\appendix
+\subsection{Código en Python para el procesamiento de las imágenes}
+%\lstinputlisting[language=iPython]{./codigo/imageHandler.py}
+
+
+
+\end{document}

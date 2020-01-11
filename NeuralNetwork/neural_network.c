@@ -12,7 +12,7 @@ Structures based from:
 #include <string.h>
 #include <time.h>
 #include <math.h>
-#include "neuralnetworkH.h"
+#include "neural_network.h"
 
 double sigmoid(double x) {
     return 1 / (1 + exp(-x)); 
@@ -38,7 +38,9 @@ int get_size(Image *first_img) {
 }
 
 void shuffle_array(Images_Array* array){
+
     int size = get_size(array->first_img);
+
     //printf("Array size: %d\n", size);
     for(int i = 0; i < size; i++){
         int j = i + rand() / (RAND_MAX/(size-i)+1);
@@ -489,8 +491,9 @@ void train(Image * img, Neuron* _hidden_layer, Output_Neuron* _output_layer){
         _output_layer[j].value = sigmoid(activation);
     }
 
-    // BACK
+    // BACKPROPAGATION
 
+    // Calculating deltas
     double delta_output[num_output_nodes];
     for (int j=0; j<num_output_nodes; j++) {
         double error_output = img->expected_output[j] - _output_layer[j].value;
@@ -506,6 +509,7 @@ void train(Image * img, Neuron* _hidden_layer, Output_Neuron* _output_layer){
         delta_hidden[j] = error_hidden * dSigmoid(_hidden_layer[j].value);
     }
     
+    // Applying changes to weights
     for (int j=0; j<num_output_nodes; j++) {
         _output_layer[j].bias += delta_output[j] * learning_rate;
         for (int k=0; k<num_hidden_nodes; k++) {
@@ -607,15 +611,69 @@ int main(int argc, const char * argv[]){
     return 0;
 } */
 
+void execute_training(Images_Array* img_array, Input_Neuron* input_layer, Neuron* hidden_layer, Output_Neuron* output_layer) {
+    printf("===== ENTRENANDO =====\n");
+    int first_time = 0;
+    if (first_time) {
+        printf("Creating new weights...\n");
+
+        for(int i=0; i<num_hidden_nodes; i++) {
+            hidden_layer[i].bias = init_weight();
+            for(int j=0; j<num_input_nodes; j++){
+                hidden_layer[i].input_weights[j] = init_weight();
+            }
+        }
+
+        for (int i=0; i<num_output_nodes; i++) {
+            output_layer[i].bias = init_weight();
+            for (int j=0; j<num_hidden_nodes; j++) {
+                output_layer[i].output_weights[j] = init_weight();
+            }
+        }
+            
+    } else {
+        hidden_layer = load_hidden_layer(hidden_layer);
+        output_layer = load_output_layer(output_layer);
+        printf("Pesos cargados..\n");
+    }
+
+
+    printf("Epochs: %d\n", EPOCHS);
+    train_network(img_array, hidden_layer, output_layer);
+    test_network_all_imgs(img_array, input_layer, hidden_layer, output_layer);
+    save_hidden_layer(hidden_layer);
+    save_output_layer(output_layer);
+
+}
+    
+void execute_test(Images_Array* img_array, Input_Neuron* input_layer, Neuron* hidden_layer, Output_Neuron* output_layer) {
+    hidden_layer = load_hidden_layer(hidden_layer);
+    output_layer = load_output_layer(output_layer);
+
+    printf("\n===== PROBANDO =====\n");
+    // executing python file to transform raw data to usable data for the network
+    system("python execute_nn.py"); 
+
+    // loading image to input layer, to run in network
+    load_image_test(input_layer);
+
+    // testing networks output
+    test_letter(input_layer, hidden_layer, output_layer);
+    printf("Network output:\n");
+    print_output(output_layer);
+    printf("Letter is a: %c\n", get_letter(output_layer));
+}
+
 int main(int argc, const char * argv[]){
     //test();
 
     printf("========== RECONOCER LETRAS ==========\n");
     printf("\n\n");
+    
+    // loading all images...
     Images_Array * img_array = malloc(sizeof(Images_Array));
     load_data_training(img_array);
-    
- 
+
 
     /////////////////////////
     int ans;
@@ -628,59 +686,13 @@ int main(int argc, const char * argv[]){
     Neuron* hidden_layer = malloc(sizeof(Neuron) *num_hidden_nodes);
     Output_Neuron* output_layer = malloc(sizeof(Output_Neuron)*num_output_nodes);
 
-    if(ans){
-        printf("===== ENTRENANDO =====\n");
-        int first_time = 1;
-        if (first_time) {
-            printf("Creating new weights...\n");
-
-            for(int i=0; i<num_hidden_nodes; i++) {
-                hidden_layer[i].bias = init_weight();
-                for(int j=0; j<num_input_nodes; j++){
-                    hidden_layer[i].input_weights[j] = init_weight();
-                }
-            }
-
-            for (int i=0; i<num_output_nodes; i++) {
-                output_layer[i].bias = init_weight();
-                for (int j=0; j<num_hidden_nodes; j++) {
-                    output_layer[i].output_weights[j] = init_weight();
-                }
-            }
-            
-        } else {
-            hidden_layer = load_hidden_layer(hidden_layer);
-            output_layer = load_output_layer(output_layer);
-            printf("Pesos cargados..\n");
-        }
-
-
-        printf("Epochs: %d\n", EPOCHS);
-        train_network(img_array, hidden_layer, output_layer);
-        test_network_all_imgs(img_array, input_layer, hidden_layer, output_layer);
-        save_hidden_layer(hidden_layer);
-        save_output_layer(output_layer);
-
+    if(ans){     
+        execute_training(img_array, input_layer, hidden_layer, output_layer);
 
     }else{
-        hidden_layer = load_hidden_layer(hidden_layer);
-        output_layer = load_output_layer(output_layer);
-
-        printf("\n===== PROBANDO =====\n");
-        // executing python file to transform raw data to usable data for the network
-        system("python execute_nn.py"); 
-
-        // loading image to input layer, to run in network
-        load_image_test(input_layer);
-
-        // testing networks output
-        test_letter(input_layer, hidden_layer, output_layer);
-        printf("Network output:\n");
-        print_output(output_layer);
-        printf("Letter is a: %c\n", get_letter(output_layer));
+        execute_test(img_array, input_layer, hidden_layer, output_layer);
     }
 
-    printf("============== DONE ==================\n");
     
     return 0;
 }
