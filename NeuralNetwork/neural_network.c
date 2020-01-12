@@ -1,7 +1,7 @@
 /*
 
 Code by Daniel Alvarado Bonilla
-Based in: https://towardsdatascience.com/simple-neural-network-implementation-in-c-663f51447547
+Based in: https://tow ardsdatascience.com/simple-neural-network-implementation-in-c-663f51447547
           
 Structures based from:
         https://github.com/AndrewCarterUK/mnist-neural-network-plain-c
@@ -61,15 +61,12 @@ Images_Array* get_images(char* path, int number_of_images, Images_Array* images,
     if (file == NULL) {
         printf("Error al abrir el archivo\n");
     }
-    //printf("Path del archivo %s", path);
-    //printf("\n");
     int counter, max, pixel_counter, img_counter;
 
     pixel_counter = 0;
     counter = 0;
     
     max = number_of_images * 784;
-    //printf("Number of images %d\n", number_of_images);
     double* all_images_in_file = malloc(sizeof(double) * max);
 
     counter = 0;
@@ -100,9 +97,6 @@ Images_Array* get_images(char* path, int number_of_images, Images_Array* images,
         }
         img_counter++;
         add_to_imgs_array(images, new_img);
-
-        
-
     }
 
     free(all_images_in_file);
@@ -529,21 +523,11 @@ void test() {
 
 }
 
-/*
-int main(int argc, const char * argv[]){
-    printf("========== RECONOCER LETRAS ==========\n");
-    printf("\n\n");
-    Images_Array * img_array = malloc(sizeof(Images_Array));
-    load_data_training(img_array);
-    shuffle_array(img_array);
-    print_imgs(img_array);
-    
-    return 0;
-} */
+
 
 void execute_training(Images_Array* img_array, Input_Neuron* input_layer, Neuron* hidden_layer, Output_Neuron* output_layer) {
     printf("===== ENTRENANDO =====\n");
-    int first_time = 1;
+    int first_time = 0;
     if (first_time) {
         printf("Creating new weights...\n");
 

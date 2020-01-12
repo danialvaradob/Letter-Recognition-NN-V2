@@ -7,28 +7,12 @@
 \usepackage{hyperref}
 \usepackage{graphicx}
 \usepackage{float}
+\usepackage{xcolor}
+\usepackage{listings}
 \graphicspath{ {./imagenes/}}
 
 \usepackage[spanish,es-noshorthands]{babel}
 
-\lstdefinestyle{customc}{
-    basicstyle=\footnotesize,
-    numbers=left,
-    stepnumber=1,
-    showstringspaces=false,
-    tabsize=1,
-    breaklines=true,
-    breakatwhitespace=false,
-}
-\lstset{style=customc}
-
-
-
-\usepackage{color}
-
-\definecolor{dkgreen}{rgb}{0,0.6,0}
-\definecolor{gray}{rgb}{0.5,0.5,0.5}
-\definecolor{mauve}{rgb}{0.58,0,0.82}
 
 %Python chiva
 \input{pythonHighlitgh.tex}
@@ -43,14 +27,14 @@
 
 
 % The paper headers
-\markboth{TEC Inteligencia Artificial \ Prof. Ing. Esteban Arias Méndez, II Semestre del 2019}%
+\markboth{TEC Inteligencia Artificial \ Prof. Ing. Esteban Arias Méndez, Verano del 2019/2020}%
 {Alvarado \MakeLowercase{\textit{et al.}}: Proyecto 4 — Neural Network The Examiner}
 
 
 
 \IEEEcompsoctitleabstractindextext{%
 \begin{abstract}
-This document describes the implementation of a neural network capable of identifying the letters A, B, D, E, and F in handheld photos of pieces of paper. The network was implemented using the C language, while the preprocessing of the images was done utilizing Python with the \textit{skimage} and \textit{cv2} libraries.
+This document describes the implementation of a neural network capable of identifying the letters A, B, D, E, and F in handheld photos of pieces of paper. The network was implemented using the C language, while the preprocessing of the images was done utilizing Python with the \textit{PIL}, \textit{cv2} and \textit{numpy} libraries. Instead of using matrixes as sugest, structures are implemented throught the code.
 \end{abstract}
 \begin{IEEEkeywords}
 Inteligencia Artificial, Red Neuronal, C, Letras
@@ -96,30 +80,33 @@ Como se mencionó brevemente, una red neuronal puede tener una o varias capas (a
 
 Una red neuronal será tan efectiva, primero, como abundantes sean los datos con los cuales es entrenada. Como mencionan Wang \& Perez \cite{WangPerez}, "[e]s conocimiento general que mientras más datos tenga un algoritmo de ML, más efectivo puede ser" [p. 1]. Asimismo, es necesario que estos datos sean de alta calidad y fidedignos a la realidad que representan \cite{TanakaAranha}. Sin embargo, generar u obtener muchos datos distintos puede ser una actividad demandante y difícil.
 
-Para solucionar esto, se ideó la aumentación de los datos (del inglés \textit{data augmentation}, técnica que ha probado dar buenos resultados en las redes neuronales de clasificación \cite{WangPerez}. La idea, grosso modo, es tomar un conjunto relativamente pequeño de datos y, por medio de modificaciones, crear nuevos elementos. Estas modificaciones, en el caso de que los datos sean imágenes, pueden ser distintos filtros para generar ruido o transformaciones como rotaciones o traslaciones.
-
+Para solucionar esto, se utilizó datos dados por distintos estudiantes del grupo de Inteligencia Artificial, obteniendo así $1518$ imágenes.
 
 
 
 \section{Implementación}
 \subsection{Descripción del problema}
-Los estudiantes del profesor Esteban Arias Méndez del Tecnológico de Costa Rica resuelven los exámenes de distintos cursos utilizando una plantilla de respuestas, la cual posee una cuadrícula numerada que corresponde a cada una de las preguntas de selección única (ver Figuras \ref{fig:PlantilaEj1}, \ref{fig:PlantilaEj2} y \ref{fig:PlantilaEj3}). En esta plantilla, los estudiantes escriben las respuestas utilizando las letras A, B, C, D, E, F; según corresponda.
+Los estudiantes del profesor Esteban Arias Méndez del Tecnológico de Costa Rica resuelven los exámenes de distintos cursos utilizando una plantilla de respuestas, la cual posee una cuadrícula numerada que corresponde a cada una de las preguntas de selección única. En esta plantilla, los estudiantes escriben las respuestas utilizando las letras A, B, C, D, E, F; según corresponda.
 
 Esta red, agilizará el proceso de detección de las letras utilizadas en el exámen. Donde podrá identificar dada una foto la letra. En caso de no contener una letra, la red podrá determinar lo mismo. El comportamiento cuando se utiliza una letra que no sea de las anteriores es desconocido.
 
 \subsection{Procesamiento de las imágenes}
-Para todo el pre-procesamiento de las imágenes (generación de datos, aplicación de filtros, modificación de tamaños) se utilizó el lenguaje Python.
+Para todo el pre-procesamiento de las imágenes se utilizó el lenguaje Python.
 
 Para el entrenamiento de la red neuronal que se encarga de identificar las letras, se crearon un total de 1518 imágenes: obtenidas por los datos de diferentes estudiantes que crearon distintas versiones de las letras mencionadas anteriormente. Cada letra se divide en una carpeta, dicha carpeta contiene un aproximado de 220 letras.
 
+Anterior a este, se intentó utiliza un método diferente. El cual creaba \textit{batches} de 32 imágenes, pero no fue efectivo al entrenarlo con la red.
+
 El proceso empleado en estás imagenes se descompone de la siguiente forma:
 
-Primero, 
+Primero, se le modifica al tamaño a la imágen, mediante la función de la librería \textit{PIL}, \textit{resize.} El tamaño de la imágen enseguida es de 28x28.
+
+Segundo, utiliza la biblioteca \textit{\textbf{cv2}} para leer las imágenes aumentadas de 28x28 píxeles como una matriz (cada elemento de la matriz representa un píxel con un valor entre 0 y 255).
+
+Tercero, con la biblioteca mencionada anteriormente, se transforma dicha matriz a un arreglo de 784 elemntos, se le aplica una calculo a cada píxel para obtener un valor entre 0 y 1. Este arreglo de elementos entre 0 y 1 es dado a la red para así entrenarla.
 
 
-Por último, se utiliza la biblioteca \textit{\textbf{cv2}} para leer las imágenes aumentadas de 28x28 píxeles como una matriz (cada elemento de la matriz representa un píxel con un valor entre 0 y 255). Luego, con la misma biblioteca, se le aplica una función de \textit{flatten} para convertir la matriz en un \textit{array} plano. Posterior a esto, se guarda el archivo en 
-
-Todos los arreglos son almacenados en un archivo, el cual es leído por el programa de la red neuronal, escrito en el lenguaje C. Se generan, en total, 2475 imágenes (11 imágenes iniciales x 6 letras x 45 imágenes aumentadas). 
+Sin embargo, para que dicha red pueda obetener los datos, las imágenes son guardadas en archivos txt. Distribuidos por letras, es decir, todas las imágenes de la letra A son guardadas en un archivo A.txt, lo anterior para facilitar la lectura de los mismos en el lenguage C y la clasificación de las imágenes en las estructuras.
 
 
 \subsection{Arquitectura de las redes neuronales}
@@ -142,6 +129,132 @@ Para el backtracking de este modelo de perceptrón, es decir la etapa en la cual
 Para este modelo de perceptrón la función de activación seleccionada fue \textit{Sigmoid}. Posterior a esto mediante la derivada de la misma y el error obtenido se ajustan los pesos, el paso anterior usando \textit{Min Square Error}.  
 
 
+\section{Problemas Encontrados}
+Para construir la red se emplearon distintos métodos, los cuales por alguna razón fueron inefectivos hasta el último . En el Desarrollo se explicará con detalle la estructura utilizada para que dicha red pudiese ser entrenada. Los métodos utilizados previamente se describen a continuación. 
+El primer problema encontrado fue al leer las imágenes desde el programa, para poder alimentar la red. Previamente se guardaban las imágenes en batches de un tamaño de 32, cada batch en un archivo txt, donde cada imágen tenía 784 píxeles. Es decir, en cada archivo se encontraban (784*32) píxeles.
+     
+Otra parte del problema fue al intentar hacer uso de recomendado en la realización de redes neuronales, matrices. Primero, una matriz de 32x784, la cual sería multiplicada con una de 784x784, por último la restante de 32x784 se multiplicaría con una de 784x7. Así dando el resultado de 32x7, clasificando cada una de las 32 imágenes.
+     
+Al mezclar estos enfoques, el resultado no fue el esperado. La red no lograba aprender. 
+ 
+\section{Desarrollo}
+Para obtener los resultados deseados, se tuvo que cambiar por completo el foco del problema. El previo, mostraba como la red no aprendía. Después de un aproximado de 1000 \textit{Epochs}, el modelo no aprendía. Ya que de 1518 imágenes probadas, se obtenía un resultado de 2 correctas y 1516 incorrectas. Al ser probada con una letra, la salida de la red era de la siguiente forma: $1 1 1 1 1 1 0$. Comportamiento totalmente erroneo.
+
+
+Para solucionarlo, se implementó lo siguiente, divido en dos secciones:
+
+\subsection{Código}
+Se implementaron 4 estructuras en el lenguaje de C, claves. 
+\begin{itemize}
+    \item Image: para poder representar las imágenes de la mejor form, se implementó una estructura con los atributos. Pixles el cual contiene los 784 pixeles de dicha imagen, con un valor entre 0 y 1. Letter para almacenar el valor de la letra, por ejemplo "A". Y un arreglo para el output deseado. g
+    \item Output Neuron: Esta neurona está compuesta por un array (tamaño de 784) que almacena todos los pesos conectados a ella, su valor de salida y muy importante el bias. No usado usualmente pero empleado en redes que utilizan \textit{Sigmoid} como función de activación.
+    \item Hidden Neuron: Neurona de la capa oculta, contiene al igual que la anterior un array (tamaño de 784) almacenando todos los pesos conectados a esta, su valor y su bias. 
+    \item Input Neuron: Una neurona simple para almacenar el valor del píxel de entrada.
+\end{itemize}
+
+Para poder guardar los pesos, se guardaron en archivos de .dat.
+
+El método utilizado para leer las imágenes de los archivos txt fue el siguiente; 
+\begin{lstlisting}[language=C, basicstyle=\tiny]
+Images_Array* get_images(char* path, int number_of_images, Images_Array* images, char letter) {
+    
+    FILE *file = NULL;
+    file = fopen(path, "r");
+    
+    if (file == NULL) {
+        printf("Error opening file\n");
+        return NULL;
+    }
+    int counter, max, pixel_counter, img_counter;
+    pixel_counter = 0;
+    counter = 0;
+    max = number_of_images * 784;
+    double* all_images_in_file = malloc(sizeof(double) * max);
+    counter = 0;
+    while (!feof(file)) {
+        fscanf(file, "%lf", &all_images_in_file[counter]);
+        counter++;
+        
+    }    
+    fclose(file);
+    Image* new_img;
+    counter = 0;
+    img_counter = 0;
+    while (img_counter < number_of_images) {
+        pixel_counter = 0;
+        //printf("Creating new image\n");
+        new_img = malloc(sizeof(Image));
+        new_img->letter = letter;
+        set_img_output(letter, new_img->expected_output);
+        new_img->next = NULL;
+        while (pixel_counter < 784) {
+            new_img->pixels[pixel_counter] = all_images_in_file[counter];
+            counter++;
+            pixel_counter++;
+        }
+        img_counter++;
+        add_to_imgs_array(images, new_img);
+    }
+    free(all_images_in_file);
+    return images;
+}
+\end{lstlisting}
+Este lee de un arhivo A.txt, el cual contiene una lista de todas las imágenes utilizadas para el entrenamiento representando la letra "A". Primero almacena de forma dinámica una lista (all\_images\_in\_file) de tamaño 784 x 1518 mediante el uso de \textit{fscanf()} se logra. Luego, se recorren dos ciclos claves para poder efectuar la carga de las imagenes. El ciclo exterior, recorre cada una de las 1518 imágenes, contenidas en un arreglo en \textit{Heap Memory}. En este mismo, cada vez se crea una nueva estructura de tipo \textit{Image}. Adentro de este ciclo, existe otro donde se ejecuta el contador de píxeles, para así almacenarlos todos en la nueva imagen. 
+
+
+El método principal de la red, fue derivado del siguiente\cite{Becerra}:
+\begin{lstlisting}[language=C, basicstyle=\tiny]
+            for (int j=0; j<numHiddenNodes; j++) {
+                double activation=hiddenLayerBias[j];
+                 for (int k=0; k<numInputs; k++) {
+                    activation+= ( PIXEL_SCALE(*(training_inputs +i*numInputs + k))  * hiddenWeights[k *numHiddenNodes + j]);
+                }
+                hiddenLayer[j] = sigmoid(activation);
+            }
+            for (int j=0; j<num_output_nodes; j++) {
+                double activation=outputLayerBias[j];
+                for (int k=0; k<numHiddenNodes; k++) {
+                    activation += hiddenLayer[k] * outputWeights[k * num_output_nodes + j];
+                }
+                outputLayer[j] = sigmoid(activation);
+            }
+
+           // Backpropagation
+           
+            double deltaOutput[num_output_nodes];
+            for (int j=0; j<num_output_nodes; j++) {
+                double errorOutput = (*(training_outputs +i*num_output_nodes + j) -outputLayer[j]);
+                deltaOutput[j] = errorOutput*dSigmoid(outputLayer[j]);
+            }
+            
+            double deltaHidden[numHiddenNodes];
+            for (int j=0; j<numHiddenNodes; j++) {
+                double errorHidden = 0.0f;
+                for(int k=0; k<num_output_nodes; k++) {
+                    errorHidden += deltaOutput[k] * outputWeights[j * num_output_nodes +k];
+                }
+                deltaHidden[j] = errorHidden*dSigmoid(hiddenLayer[j]);
+            }
+            
+            for (int j=0; j<num_output_nodes; j++) {
+                outputLayerBias[j] += deltaOutput[j]*lr;
+                for (int k=0; k<numHiddenNodes; k++) {
+                    outputWeights[k * num_output_nodes + j]+=hiddenLayer[k] * deltaOutput[j] * lr;
+                }
+            }
+            
+            for (int j=0; j<numHiddenNodes; j++) {
+                hiddenLayerBias[j] += deltaHidden[j]*lr;
+                for(int k=0; k<numInputs; k++) {
+                    hiddenWeights[k *numHiddenNodes + j] += *(training_inputs +i*numInputs + k) * deltaHidden[j]*lr;
+                }
+            }
+        }
+\end{lstlisting}
+
+En el anterior, se puede ver como primero se calcula el valor de cada neurona oculta mediante los pesos y la entrada (píxel de entrada). Luego, con esta salida y los pesos de la capa de salida, se calcula el valor de cada neurona de salida. Es decir, se obtiene 7 valores, representando cada letra. 
+
+Luego, se calcula el error, posterior el delta. Y por último haciendo uso del delta se cambian los valores de los pesos. En la red utilizada sin embargo, es un tanto distnto, puesto que no se usan matrices sino que estructuras para representar las neuronas de salida y las neuronas de la capa oculta.
 
 \section{Análisis de resultados}
 
@@ -153,17 +266,32 @@ Resultados obtenidos con $784$ nodos en la capa oculta, \textit{Learning Rate} d
     \caption{Resultados - 1000 epochs}
     \label{fig:Resultados784_1}
 \end{figure}
+Resultados obtenidos con $784$ nodos en la capa oculta además de mezclar el arreglo de imágenes en cada epoch:
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.35\textwidth]{images/results_784_2.jpg}
+    \caption{Resultados - 1000 epochs - 2}
+    \label{fig:Resultados784_2}
+\end{figure}
+Un ejemplo seleccionado para probar la red, fue utilizando una imágen un tanto díficil, donde la red fue exitosa.
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.35\textwidth]{images/b1.jpg}
+    \caption{B}
+    \label{fig:b_1}
+\end{figure}
 
-
-Resultados obtenidos con $784$ nodos en la capa oculta, \textit{Learning Rate} de $0.5$: 
-
-
-
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.35\textwidth]{images/b1_res.jpg}
+    \caption{Resultado obtenido por la Red}
+    \label{fig:b_1_res}
+\end{figure}
 
 
 \section{Conclusiones}
 
-Luego investigar acerca de los diferentes perceptrones a modelar para crear nuestra Red Neuronal, se concluye que para nuestro problema la mejor opción fue aquella de tres diferentes capas (no se realizaron pruebas con más), conformado por una capa de entrada, una capa oculta y por último la capa de salida. Las distinas pruebas tenían una cantidad e $32$, $64$ y $784$ nodos/neuronas en la capa oculta. Los resultados más rápidos obtenidos y exactos, fueron aquellos utilizando 784 neuronas en la capa oculta. Posterior al \textit{batch} número $15$ los resultados fueron excelentes. Con un total de $480$ imágenes, ya la exactitud de la red era de $0.9965$. Esta red siendo simple, logra reconocer letras. Pero pueden utilizarse en muchísimos ámbitos, siendo realmente útiles en un futuro cercano. 
+Luego investigar acerca de los diferentes perceptrones a modelar para crear nuestra Red Neuronal, se concluye que para nuestro problema la mejor opción fue aquella de tres diferentes capas (no se realizaron pruebas con más), conformado por una capa de entrada, una capa oculta y por último la capa de salida. Las distinas pruebas tenían una cantidad e $32$, $64$ y $784$ nodos/neuronas en la capa oculta. Los resultados más rápidos obtenidos y exactos, fueron aquellos utilizando 784 neuronas en la capa oculta. Posterior realizando una prueba después del último epoch, resultados fueron excelentes. Con un total de $1518$ imágenes, ya la exactitud de la red era de $0.992754$, con $10$ fallós en total. Esta red siendo simple, logra reconocer letras. Pero pueden utilizarse en muchísimos ámbitos, siendo realmente útiles en un futuro cercano. 
 
 \clearpage
 
@@ -189,8 +317,7 @@ Kriesel, D. (2007). A Brief Introduction to Neural Networks. Recuperado de: \url
 Kim, S. (2019). Back-propagation Demystified in 7 minutes. Recuperado de:
 \url{https://towardsdatascience.com/back-propagation-demystified-in-7-minutes-4294d71a04d7}
 
-\bibitem{scikit}
-scikit-image (s. f.). Scikit-image 0.17.dev0 docs. Module: util. Random\_noise. Recuperado de: \url{https://scikit-image.org/docs/dev/api/skimage.util.html#skimage.util.random_noise}.
+
 
 \bibitem{WangPerez}
 Wang, J. \& Perez, L. (s. f.). The Effectiveness of Data Augmentation in Image Classification using Deep Learning. Recuperado de: \url{http://cs231n.stanford.edu/reports/2017/pdfs/300.pdf}.
