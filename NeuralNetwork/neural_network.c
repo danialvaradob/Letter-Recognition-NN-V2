@@ -203,7 +203,7 @@ void load_image_test(Input_Neuron * input_layer){
 
 
 
-void test_letter(Input_Neuron* input_layer, Neuron* hidden_layer, Output_Neuron* output_layer){
+void test_network_output(Input_Neuron* input_layer, Neuron* hidden_layer, Output_Neuron* output_layer){
     for (int j=0; j<num_hidden_nodes; j++) {
         double activation = hidden_layer[j].bias;
         for (int k=0; k<num_input_nodes; k++) {
@@ -243,7 +243,7 @@ void test_network_all_imgs(Images_Array * img_array, Input_Neuron* input_layer, 
         for(int i=0; i<num_input_nodes; i++){
             input_layer[i].value = curr_img->pixels[i];
         }
-        test_letter(input_layer, hidden_layer, output_layer);
+        test_network_output(input_layer, hidden_layer, output_layer);
         
         if(curr_img->letter == get_letter(output_layer)){
             correct++;
@@ -269,7 +269,7 @@ void test_network_all_imgs2(Images_Array * img_array, Neuron* hidden_layer, Outp
         for(int i=0; i<num_input_nodes; i++){
             input_layer[i].value = curr_img->pixels[i];
         }
-        test_letter(input_layer, hidden_layer, output_layer);
+        test_network_output(input_layer, hidden_layer, output_layer);
         
         if(curr_img->letter == get_letter(output_layer)){
             correct++;
@@ -588,7 +588,7 @@ void execute_test(Images_Array* img_array, Input_Neuron* input_layer, Neuron* hi
     load_image_test(input_layer);
 
     // testing networks output
-    test_letter(input_layer, hidden_layer, output_layer);
+    test_network_output(input_layer, hidden_layer, output_layer);
     printf("Network output:\n");
     print_output(output_layer);
     printf("Letter is a: %c\n", get_letter(output_layer));

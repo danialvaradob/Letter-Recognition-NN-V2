@@ -53,8 +53,8 @@ typedef struct {
 } Network;
 
 typedef struct Image{
-    double pixels[num_input_nodes];
     char letter;
+    double pixels[num_input_nodes];
     double expected_output[num_output_nodes];
     struct Image * next; 
 } Image;
@@ -74,7 +74,7 @@ void print_imgs(Images_Array* img_array);
 void add_to_imgs_array(Images_Array * array, Image * img);
 void set_img_output(char letter, double * result);
 void load_image_test(Input_Neuron * input_layer);
-void test_letter(Input_Neuron* input_layer, Neuron* hidden_layer, Output_Neuron* output_layer);
+void test_network_output(Input_Neuron* input_layer, Neuron* hidden_layer, Output_Neuron* output_layer);
 char get_letter(Output_Neuron* output_layer);
 void test_network(Images_Array * img_array, Input_Neuron* input_layer, Neuron* hidden_layer, Output_Neuron* output_layer);
 Neuron* load_hidden_layer(Neuron* hidden_layer);
