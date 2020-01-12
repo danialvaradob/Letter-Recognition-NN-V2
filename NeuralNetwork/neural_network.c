@@ -5,6 +5,9 @@ Based in: https://towardsdatascience.com/simple-neural-network-implementation-in
           
 Structures based from:
         https://github.com/AndrewCarterUK/mnist-neural-network-plain-c
+
+Shuffle algorithm:
+        https://web.stanford.edu/class/cs9/sample_probs/ListShuffling.pdf
 */
 
 #include <stdio.h>
@@ -37,53 +40,14 @@ int get_size(Image *first_img) {
 
 }
 
-void shuffle_array(Images_Array* array){
+void shuffle_array(Images_Array* img_array){
 
-    int size = get_size(array->first_img);
+    Image* temp_first = img_array->first_img;
+    Image** temp = &temp_first;
+    shuffleList(temp);
+    img_array->first_img = *temp;
 
-    //printf("Array size: %d\n", size);
-    for(int i = 0; i < size; i++){
-        int j = i + rand() / (RAND_MAX/(size-i)+1);
-        if(i != j){
-            Image * curr_img = array->first_img;
-            Image * curr_img2 = NULL;
-            Image * curr_img1 = NULL; 
-            Image * ant = NULL;
-            Image * ant1 = NULL;
-            Image * ant2 = NULL;
-            int cont = 0;
-
-            while(curr_img1 == NULL || curr_img2 == NULL) {
-                if (cont == i){
-                    curr_img1 = curr_img;
-                    ant1 = ant;
-                }
-                else if (cont == j) {
-                    curr_img2 = curr_img;
-                    ant2 = ant;
-                }
-                cont ++;
-                ant = curr_img;
-                curr_img = curr_img->next;
-            }
-            if (i == 0) {
-                array->first_img = curr_img2;
-                ant2->next = curr_img1;             
-            }
-            else if(j == 0){
-                array->first_img = curr_img1;
-                ant1->next = curr_img2;
-            } else {
-                ant1->next = curr_img2;
-                ant2->next = curr_img1;
-            }
-            curr_img = curr_img1->next;
-            curr_img1->next = curr_img2->next;              
-            curr_img2->next = curr_img;
-        }
-    }
 }
-
 
 
 /**
@@ -171,45 +135,8 @@ void load_data_training(Images_Array* img_array){
         img_array = get_images(f, amount_of_imgs[i], img_array, letters[i][0]);
         //print_imgs(img_array);
     }
-    shuffle_array(img_array);
-    //Image* temp_first = img_array->first_img;
-    //Image** temp = &temp_first;
-    //shuffleList(temp);
-    //img_array->first_img = *temp;
-    //print_imgs(img_array);
 }
 
-void load_data_training2(Images_Array* img_array){
-
-    FILE *file = NULL;
-    char* letters[] = {"A", "B", "C", "D", "E", "F", "_"};
-    int amount_of_imgs[] = {imgs_A_num, imgs_B_num, imgs_C_num, imgs_D_num, imgs_E_num, 
-                imgs_F_num, imgs_num};
-    for(int i = 0; i < num_output_nodes; i++){
-        char f [11];
-        
-        strcpy(f, "Data/");
-        strcat(f, letters[i]);
-        strcat(f, ".txt");
-        
-        //printf("%s\n",f);
-        
-        file = fopen(f, "r"); 
-        if (file == NULL) {
-          perror("Error");
-          exit(EXIT_FAILURE);
-        }
-
-        img_array = get_images(f, amount_of_imgs[i], img_array, letters[i][0]);
-        //print_imgs(img_array);
-    }
-    //shuffle_array(img_array);
-    Image* temp_first = img_array->first_img;
-    Image** temp = &temp_first;
-    shuffleList(temp);
-    img_array->first_img = *temp;
-    //print_imgs(img_array);
-}
 
 void print_imgs(Images_Array* img_array) {
     Image* curr_img = img_array->first_img;
@@ -528,6 +455,9 @@ void train(Image * img, Neuron* _hidden_layer, Output_Neuron* _output_layer){
 void train_network(Images_Array * img_array, Neuron* hidden_layer, Output_Neuron* output_layer){
     Image * curr_img = NULL;
     for (int epoch = 0; epoch < EPOCHS; epoch++) {
+        // shuffles them every epoch
+        shuffle_array(img_array);
+
         curr_img = img_array -> first_img;
 
         if (epoch%100 == 0) {
@@ -613,7 +543,7 @@ int main(int argc, const char * argv[]){
 
 void execute_training(Images_Array* img_array, Input_Neuron* input_layer, Neuron* hidden_layer, Output_Neuron* output_layer) {
     printf("===== ENTRENANDO =====\n");
-    int first_time = 0;
+    int first_time = 1;
     if (first_time) {
         printf("Creating new weights...\n");
 
