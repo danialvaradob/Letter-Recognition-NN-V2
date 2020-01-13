@@ -40,6 +40,40 @@ int get_size(Image *first_img) {
 
 }
 
+char get_letter(Output_Neuron* output_layer){
+    int highest_pos = 0;
+    char letter;
+    double highest = 0;
+    
+    for(int i = 0; i < num_output_nodes; i++){
+        if(output_layer[i].value > highest){
+            highest = output_layer[i].value;
+            highest_pos = i;
+        }
+    }
+
+    switch (highest_pos)
+    {
+    case 0:
+        letter = 'A';
+        break;
+    case 1:
+        letter = 'B';
+    case 2:
+        letter = 'C';
+    case 3:
+        letter = 'D';
+    case 4:
+        letter = 'E';
+    case 5:
+        letter = 'F';
+    case 6:
+        letter = '_';
+    }
+
+    return letter;
+}
+
 void shuffle_array(Images_Array* img_array){
 
     Image* temp_first = img_array->first_img;
@@ -215,45 +249,11 @@ void test_network_output(Input_Neuron* input_layer, Neuron* hidden_layer, Output
     }
 }
 
-char get_letter(Output_Neuron* output_layer){
-    char letters [] = {'A', 'B', 'C', 'D', 'E', 'F', ' '};
-    double highest = 0;
-    int highest_pos = 0;
-    for(int i = 0; i < num_output_nodes; i++){
-        if(output_layer[i].value > highest){
-            highest = output_layer[i].value;
-            highest_pos = i;
-        }
-    }
-    return letters[highest_pos];
-}
 
-void test_network_all_imgs(Images_Array * img_array, Input_Neuron* input_layer, Neuron* hidden_layer, Output_Neuron* output_layer){
-    int correct = 0;
-    int incorrect = 0;
-    int total = 0;
-    Image * curr_img = img_array->first_img;
-    while(curr_img != NULL){
-        for(int i=0; i<num_input_nodes; i++){
-            input_layer[i].value = curr_img->pixels[i];
-        }
-        test_network_output(input_layer, hidden_layer, output_layer);
-        
-        if(curr_img->letter == get_letter(output_layer)){
-            correct++;
-        }else{
-            incorrect++;
-        }
-        curr_img = curr_img->next;
-        total++;
-    }
-    printf("Correct: %d\n",correct);
-    printf("Incorrect: %d\n", incorrect);
-    printf("Total: %d\n", total);
-    printf("Accuracy: %f\n",(double) correct / (double) total);
-}
 
-void test_network_all_imgs2(Images_Array * img_array, Neuron* hidden_layer, Output_Neuron* output_layer){
+
+
+void test_network_all_imgs(Images_Array * img_array, Neuron* hidden_layer, Output_Neuron* output_layer){
     Input_Neuron* input_layer = malloc(sizeof(Input_Neuron)*num_input_nodes);
     int correct = 0;
     int incorrect = 0;
@@ -273,6 +273,9 @@ void test_network_all_imgs2(Images_Array * img_array, Neuron* hidden_layer, Outp
         curr_img = curr_img->next;
         total++;
     }
+    printf("Correct:%d ",correct);
+    printf("Incorrect:%d ", incorrect);
+    printf("Total:%d ", total);
     printf("Accuracy: %f\n",(double) correct / (double) total);
 }
 
@@ -454,9 +457,13 @@ void train_network(Images_Array * img_array, Neuron* hidden_layer, Output_Neuron
 
         curr_img = img_array -> first_img;
 
+        if (epoch + 1 == EPOCHS) {
+            printf("Last Epoch: ");
+            test_network_all_imgs(img_array, hidden_layer, output_layer);
+        } 
         if (epoch%100 == 0) {
             printf("Epoch: %d ", epoch);
-            test_network_all_imgs2(img_array, hidden_layer, output_layer);
+            test_network_all_imgs(img_array, hidden_layer, output_layer);
         }
 
         while(curr_img != NULL){
@@ -548,13 +555,12 @@ void execute_training(Images_Array* img_array, Input_Neuron* input_layer, Neuron
     } else {
         hidden_layer = load_hidden_layer(hidden_layer);
         output_layer = load_output_layer(output_layer);
-        printf("Pesos cargados..\n");
+        
     }
 
 
-    printf("Epochs: %d\n", EPOCHS);
+    printf("Amount of Epochs: %d\n", EPOCHS);
     train_network(img_array, hidden_layer, output_layer);
-    test_network_all_imgs(img_array, input_layer, hidden_layer, output_layer);
     save_hidden_layer(hidden_layer);
     save_output_layer(output_layer);
 

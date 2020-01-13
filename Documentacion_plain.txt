@@ -260,34 +260,54 @@ Luego, se calcula el error, posterior el delta. Y por último haciendo uso del d
 
 Para los resultados se realizaron entrenamientos con un mismo modelo, obteniendo la mejor exactitud con 784 nodos en la capa oculta. Se utilizan un total de $1518$ imágenes El valor \textit{Learning rate} fue moderado mediante pruebas, también especificadas a continuación. Para las $1518$ imágenes se efectuaron 1000 epocs para el entrenamiento de dicha red. //
 Resultados obtenidos con $784$ nodos en la capa oculta, \textit{Learning Rate} de $0.1$: 
-\begin{figure}[h]
+\begin{figure}[h!]
     \centering
     \includegraphics[width=0.35\textwidth]{images/results_784.jpg}
     \caption{Resultados - 1000 epochs}
     \label{fig:Resultados784_1}
 \end{figure}
 Resultados obtenidos con $784$ nodos en la capa oculta además de mezclar el arreglo de imágenes en cada epoch:
-\begin{figure}[h]
+\begin{figure}[h!]
     \centering
     \includegraphics[width=0.35\textwidth]{images/results_784_2.jpg}
     \caption{Resultados - 1000 epochs - 2}
     \label{fig:Resultados784_2}
 \end{figure}
 Un ejemplo seleccionado para probar la red, fue utilizando una imágen un tanto díficil, donde la red fue exitosa.
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=0.35\textwidth]{images/b1.jpg}
+\begin{figure}[h!]
+    \includegraphics[width=0.20\textwidth]{images/b_1.jpg}
     \caption{B}
     \label{fig:b_1}
 \end{figure}
 
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=0.35\textwidth]{images/b1_res.jpg}
+\begin{figure}[h!]
+    \includegraphics[width=0.35\textwidth]{images/b_1_res.jpg}
     \caption{Resultado obtenido por la Red}
     \label{fig:b_1_res}
 \end{figure}
+\begin{figure}[h!]
+    \includegraphics[width=0.20\textwidth]{images/e_1.PNG}
+    \caption{E}
+    \label{fig:e_1}
+\end{figure}
 
+\begin{figure}[h!]
+    \includegraphics[width=0.35\textwidth]{images/e_1_res.jpg}
+    \caption{Resultado obtenido por la Red}
+    \label{fig:e_1_res}
+\end{figure}
+%%%%%%%%%%%%%%%%%%%%%%%
+\begin{figure}[h!]
+    \includegraphics[width=0.20\textwidth]{images/f_1.PNG}
+    \caption{F}
+    \label{fig:e_1}
+\end{figure}
+
+\begin{figure}[h!]
+    \includegraphics[width=0.35\textwidth]{images/f_1_res.jpg}
+    \caption{Resultado obtenido por la Red}
+    \label{fig:e_1_res}
+\end{figure}
 
 \section{Conclusiones}
 

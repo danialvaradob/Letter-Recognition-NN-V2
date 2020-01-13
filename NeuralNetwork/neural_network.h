@@ -8,7 +8,7 @@
 #define num_hidden_nodes  784
 #define num_output_nodes  7
 #define learning_rate  0.1
-#define EPOCHS  1000
+#define EPOCHS  2
 
 // numbers of files per folder
 static int imgs_A_num = 217;
